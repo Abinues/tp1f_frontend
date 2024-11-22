@@ -42,11 +42,26 @@ class _CartViewState extends State<CartView> {
               onLongPress: () {
                 removeProduct(context, productCounters[index]);
               },
-              title: Text(product.name),
+              title: Text(
+                "${productCounter.count} ${product.name}",
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
               subtitle: Text(
                   "\$${(productCounter.count * product.salePrice).toStringAsFixed(2)}"),
               leading: CircleAvatar(
-                child: Text(productCounter.count.toString()),
+                backgroundImage: product.imageBytes != null
+                    ? MemoryImage(product.imageBytes!)
+                    : (product.imagePath != null
+                        ? AssetImage(product.imagePath!)
+                        : null),
+                child: product.imageBytes == null && product.imagePath == null
+                    ? Text(
+                        product.name[0],
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      )
+                    : null,
               ),
               trailing: IconButton(
                 icon: Icon(Icons.edit),
@@ -59,7 +74,6 @@ class _CartViewState extends State<CartView> {
                     if (newProductCounter != null) {
                       setState(() {
                         productCounter.count = newProductCounter.count;
-                        print("ID del producto modificado: ${product.id}");
                       });
                     }
                   });

@@ -11,22 +11,23 @@ class CategoryView extends StatefulWidget {
 }
 
 List<Category> categories = [
-  Category(name: 'Fruta'),
-  Category(name: 'Verdura'),
-  Category(name: 'Lácteos'),
-  Category(name: 'Carnes'),
-  Category(name: 'Pescado'),
-  Category(name: 'Panadería'),
-  Category(name: 'Bebidas'),
-  Category(name: 'Snacks'),
-  Category(name: 'Cereales'),
-  Category(name: 'Condimentos')
+  Category(name: 'Fruta', icon: Icons.apple),
+  Category(name: 'Verdura', icon: Icons.grass),
+  Category(name: 'Lácteos', icon: Icons.icecream),
+  Category(name: 'Carnes', icon: Icons.food_bank),
+  Category(name: 'Pescado', icon: Icons.set_meal),
+  Category(name: 'Panadería', icon: Icons.bakery_dining),
+  Category(name: 'Bebidas', icon: Icons.local_drink),
+  Category(name: 'Snacks', icon: Icons.fastfood),
+  Category(name: 'Cereales', icon: Icons.rice_bowl),
+  Category(name: 'Condimentos', icon: Icons.spa)
 ];
 
 class _CategoryView extends State<CategoryView> {
   List<Category> filteredCategories = categories;
   String selectedFilter = 'name';
   bool isFilteringByName = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,7 +52,7 @@ class _CategoryView extends State<CategoryView> {
                   },
                   title: Text(filteredCategories[index].name),
                   leading: CircleAvatar(
-                    child: Text(filteredCategories[index].name.substring(0, 1)),
+                    child: Icon(filteredCategories[index].icon),
                   ),
                   trailing: IconButton(
                     icon: Icon(Icons.edit),
@@ -65,7 +66,7 @@ class _CategoryView extends State<CategoryView> {
                       ).then((newCategory) {
                         if (newCategory != null) {
                           setState(() {
-                            filteredCategories[index].name = newCategory.name;
+                            filteredCategories[index] = newCategory;
                           });
                         }
                       });
@@ -179,6 +180,7 @@ class Category {
   static int _idCounter = 0;
   int id;
   var name;
+  IconData icon;
 
-  Category({required this.name}) : id = _idCounter++;
+  Category({required this.name, required this.icon}) : id = _idCounter++;
 }

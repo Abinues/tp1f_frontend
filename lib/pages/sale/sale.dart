@@ -100,7 +100,10 @@ class _SaleView extends State<SaleView> {
                 leading: Icon(Icons.calendar_today),
                 title: Text('Filtrar por fecha'),
                 onTap: () {
-                  setState(() => currentFilter = 'fecha');
+                  setState(() {
+                    currentFilter = 'fecha';
+                    filteredSales = sales;
+                  });
                   Navigator.pop(context);
                 },
               ),
@@ -108,7 +111,10 @@ class _SaleView extends State<SaleView> {
                 leading: Icon(Icons.person),
                 title: Text('Filtrar por nombre del cliente'),
                 onTap: () {
-                  setState(() => currentFilter = 'name');
+                  setState(() {
+                    currentFilter = 'name';
+                    filteredSales = sales;
+                  });
                   Navigator.pop(context);
                 },
               ),
@@ -116,7 +122,10 @@ class _SaleView extends State<SaleView> {
                 leading: Icon(Icons.person),
                 title: Text('Filtrar por apellido del cliente'),
                 onTap: () {
-                  setState(() => currentFilter = 'surname');
+                  setState(() {
+                    currentFilter = 'surname';
+                    filteredSales = sales;
+                  });
                   Navigator.pop(context);
                 },
               ),
@@ -124,7 +133,36 @@ class _SaleView extends State<SaleView> {
                 leading: Icon(Icons.credit_card),
                 title: Text('Filtrar por cédula del cliente'),
                 onTap: () {
-                  setState(() => currentFilter = 'cedula');
+                  setState(() {
+                    currentFilter = 'cedula';
+                    filteredSales = sales;
+                  });
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.local_shipping),
+                title: Text('Filtrar por Delivery'),
+                onTap: () {
+                  setState(() {
+                    currentFilter = 'delivery';
+                    filteredSales = sales
+                        .where((sale) => sale.operation != 'pickup')
+                        .toList();
+                  });
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.store),
+                title: Text('Filtrar por Pickup'),
+                onTap: () {
+                  setState(() {
+                    currentFilter = 'pickup';
+                    filteredSales = sales
+                        .where((sale) => sale.operation == 'pickup')
+                        .toList();
+                  });
                   Navigator.pop(context);
                 },
               ),

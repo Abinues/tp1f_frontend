@@ -19,6 +19,7 @@ List<Client> clients = [
   Client(id: 4699787, name: 'Carlos', surname: 'Piedrabuena'),
   Client(id: 5411448, name: 'Alejandro', surname: 'Baez'),
 ];
+
 List<Sale> sales = [
   // Venta 1 para Abigail Fernandez
   Sale(
@@ -28,7 +29,8 @@ List<Sale> sales = [
         ProductsCounter(idProduct: 0, count: 3), // Manzana (3 unidades)
         ProductsCounter(idProduct: 4, count: 2), // Tomate (2 unidades)
       ],
-      total: 3 * 1.2 + 2 * 0.9),
+      total: 3 * 1.2 + 2 * 0.9,
+      operation: "Aviadores del Chaco 202, Asunción, Paraguay"),
 
   // Venta 2 para Carlos Piedrabuena
   Sale(
@@ -39,7 +41,8 @@ List<Sale> sales = [
         ProductsCounter(idProduct: 12, count: 1), // Carne de Res (1 unidad)
         ProductsCounter(idProduct: 18, count: 3), // Refresco (3 unidades)
       ],
-      total: 1 * 2.5 + 1 * 7.5 + 3 * 1.0),
+      total: 1 * 2.5 + 1 * 7.5 + 3 * 1.0,
+      operation: "pickup"),
 
   // Venta 3 para Alejandro Baez
   Sale(
@@ -49,7 +52,8 @@ List<Sale> sales = [
         ProductsCounter(idProduct: 5, count: 4), // Zanahoria (4 unidades)
         ProductsCounter(idProduct: 11, count: 1), // Pollo (1 unidad)
       ],
-      total: 4 * 0.7 + 1 * 5.0),
+      total: 4 * 0.7 + 1 * 5.0,
+      operation: "Grabadores del Cabichuí 2716, Asunción, Paraguay"),
 
   // Venta 4 para Abigail Fernandez
   Sale(
@@ -59,7 +63,8 @@ List<Sale> sales = [
         ProductsCounter(idProduct: 14, count: 1), // Croissant (1 unidad)
         ProductsCounter(idProduct: 20, count: 2), // Chocolate (2 unidades)
       ],
-      total: 1 * 1.2 + 2 * 1.7),
+      total: 1 * 1.2 + 2 * 1.7,
+      operation: "pickup"),
 
   // Venta 5 para Carlos Piedrabuena
   Sale(
@@ -69,14 +74,17 @@ List<Sale> sales = [
         ProductsCounter(idProduct: 21, count: 2), // Avena (2 unidades)
         ProductsCounter(idProduct: 23, count: 1), // Pimienta (1 unidad)
       ],
-      total: 2 * 2.0 + 1 * 0.7),
+      total: 2 * 2.0 + 1 * 0.7,
+      operation: "pickup"),
 ];
 
 class _FinishCart extends State<FinishCart> {
   late TextEditingController cedulaController;
   late TextEditingController nameController;
   late TextEditingController surnameController;
+  late TextEditingController addressController;
   bool isFormValid = false;
+  String operation = "pickup";
 
   @override
   void initState() {
@@ -84,10 +92,12 @@ class _FinishCart extends State<FinishCart> {
     cedulaController = TextEditingController();
     nameController = TextEditingController();
     surnameController = TextEditingController();
+    addressController = TextEditingController();
 
     cedulaController.addListener(validateForm);
     nameController.addListener(validateForm);
     surnameController.addListener(validateForm);
+    addressController.addListener(validateForm);
   }
 
   void validateForm() {
@@ -95,7 +105,8 @@ class _FinishCart extends State<FinishCart> {
       isFormValid = cedulaController.text.isNotEmpty &&
           nameController.text.isNotEmpty &&
           surnameController.text.isNotEmpty &&
-          int.tryParse(cedulaController.text) != null;
+          int.tryParse(cedulaController.text) != null &&
+          (operation == "pickup" || addressController.text.isNotEmpty);
     });
   }
 
@@ -104,6 +115,7 @@ class _FinishCart extends State<FinishCart> {
     cedulaController.dispose();
     nameController.dispose();
     surnameController.dispose();
+    addressController.dispose();
     super.dispose();
   }
 
@@ -114,7 +126,7 @@ class _FinishCart extends State<FinishCart> {
         title: Text("Finalizar Compra"),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -122,12 +134,54 @@ class _FinishCart extends State<FinishCart> {
             TextBox(nameController, "Nombre"),
             TextBox(surnameController, "Apellido"),
             SizedBox(height: 20),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Método de entrega",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                ListTile(
+                  title: Text("Pickup"),
+                  leading: Radio<String>(
+                    value: "pickup",
+                    groupValue: operation,
+                    activeColor: Colors.pink,
+                    onChanged: (value) {
+                      setState(() {
+                        operation = value!;
+                        addressController.clear();
+                      });
+                    },
+                  ),
+                ),
+                ListTile(
+                  title: Text("Delivery"),
+                  leading: Radio<String>(
+                    value: "delivery",
+                    groupValue: operation,
+                    activeColor: Colors.pink,
+                    onChanged: (value) {
+                      setState(() {
+                        operation = value!;
+                      });
+                    },
+                  ),
+                ),
+                if (operation == "delivery")
+                  TextBox(addressController, "Dirección de entrega"),
+              ],
+            ),
+            SizedBox(height: 20),
             ElevatedButton(
               onPressed: isFormValid
                   ? () {
                       int idClient = int.parse(cedulaController.text);
                       String name = nameController.text;
                       String surname = surnameController.text;
+                      String operationValue = operation == "pickup"
+                          ? "pickup"
+                          : addressController.text;
 
                       finishCart(
                         idClient: idClient,
@@ -135,6 +189,7 @@ class _FinishCart extends State<FinishCart> {
                         surname: surname,
                         productCounters: productCounters,
                         total: widget.total,
+                        operation: operationValue,
                       );
 
                       Navigator.pop(context, true);
@@ -170,12 +225,14 @@ class Sale {
   int idCliente;
   List<ProductsCounter> detalle;
   double total;
+  String operation;
 
   Sale({
     required this.fecha,
     required this.idCliente,
     required this.detalle,
     required this.total,
+    required this.operation,
   }) : id = _idCounter++;
 }
 
@@ -185,6 +242,7 @@ void finishCart({
   required String surname,
   required List<ProductsCounter> productCounters,
   required double total,
+  required String operation,
 }) {
   Client? existingClient = clients.firstWhere(
     (client) => client.id == idClient,
@@ -202,6 +260,7 @@ void finishCart({
     idCliente: idClient,
     detalle: productCountersCopy,
     total: total,
+    operation: operation,
   );
 
   sales.add(newSale);

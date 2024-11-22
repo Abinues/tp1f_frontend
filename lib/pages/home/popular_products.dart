@@ -1,4 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'dart:typed_data';
+import 'dart:io';
 import '../product/product.dart';
 
 class ProductsCounter {
@@ -41,7 +44,12 @@ class _PopularProductsWidgetsState extends State<PopularProductsWidgets> {
         },
       );
 
-      productCounter.increment();
+      final product = products.firstWhere((p) => p.id == productId);
+
+      if (product.stock > 0) {
+        productCounter.increment();
+        product.stock--;
+      }
     });
   }
 
@@ -52,7 +60,12 @@ class _PopularProductsWidgetsState extends State<PopularProductsWidgets> {
         orElse: () => ProductsCounter(idProduct: productId),
       );
 
-      productCounter.decrement();
+      if (productCounter.count > 0) {
+        productCounter.decrement();
+
+        final product = products.firstWhere((p) => p.id == productId);
+        product.stock++;
+      }
 
       if (productCounter.count == 0) {
         productCounters
@@ -123,16 +136,41 @@ class _PopularProductsWidgetsState extends State<PopularProductsWidgets> {
                             color: Colors.pink.shade100,
                             shape: BoxShape.circle,
                           ),
-                          child: Center(
-                            child: Text(
-                              product.name[0],
-                              style: TextStyle(
-                                fontSize: 80,
-                                color: Colors.pink.shade700,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
+                          child: product.imageBytes != null
+                              ? ClipOval(
+                                  child: Image.memory(
+                                    product.imageBytes!,
+                                    fit: BoxFit.cover,
+                                    width: 200,
+                                    height: 200,
+                                  ),
+                                )
+                              : product.imagePath != null
+                                  ? ClipOval(
+                                      child: kIsWeb
+                                          ? Image.asset(
+                                              product.imagePath!,
+                                              fit: BoxFit.cover,
+                                              width: 200,
+                                              height: 200,
+                                            )
+                                          : Image.file(
+                                              File(product.imagePath!),
+                                              fit: BoxFit.cover,
+                                              width: 200,
+                                              height: 200,
+                                            ),
+                                    )
+                                  : Center(
+                                      child: Text(
+                                        product.name[0],
+                                        style: TextStyle(
+                                          fontSize: 80,
+                                          color: Colors.pink.shade700,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
                         ),
                       ),
                       Positioned(
@@ -142,6 +180,18 @@ class _PopularProductsWidgetsState extends State<PopularProductsWidgets> {
                           currentCount.toString(),
                           style: const TextStyle(
                             fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        left: 10,
+                        top: 10,
+                        child: Text(
+                          "S: ${product.stock}",
+                          style: const TextStyle(
+                            fontSize: 14,
                             fontWeight: FontWeight.bold,
                             color: Colors.black,
                           ),
@@ -175,7 +225,9 @@ class _PopularProductsWidgetsState extends State<PopularProductsWidgets> {
                         icon: const Icon(Icons.remove),
                       ),
                       IconButton(
-                        onPressed: () => _incrementCounter(product.id),
+                        onPressed: product.stock > 0
+                            ? () => _incrementCounter(product.id)
+                            : null,
                         icon: const Icon(Icons.add),
                       ),
                     ],

@@ -9,11 +9,47 @@ class AddCategory extends StatefulWidget {
 
 class _AddCategory extends State<AddCategory> {
   late TextEditingController controllerName;
+  late IconData selectedIcon;
+
+  final List<IconData> icons = [
+    Icons.ac_unit,
+    Icons.access_alarm,
+    Icons.access_time,
+    Icons.account_balance,
+    Icons.account_circle,
+    Icons.add_shopping_cart,
+    Icons.agriculture,
+    Icons.local_grocery_store,
+    Icons.restaurant,
+    Icons.fastfood,
+    Icons.local_cafe,
+    Icons.local_dining,
+    Icons.icecream,
+    Icons.cookie,
+    Icons.bakery_dining,
+    Icons.local_pizza,
+    Icons.rice_bowl,
+    Icons.egg,
+    Icons.apple,
+    Icons.grass,
+    Icons.bolt,
+    Icons.local_drink,
+    Icons.water_drop,
+    Icons.wine_bar,
+    Icons.cleaning_services,
+    Icons.soap,
+    Icons.baby_changing_station,
+    Icons.pets,
+    Icons.medication,
+    Icons.spa,
+    Icons.kitchen,
+    Icons.shopping_bag,
+  ];
 
   @override
   void initState() {
-    controllerName = new TextEditingController();
-
+    controllerName = TextEditingController();
+    selectedIcon = icons.first;
     super.initState();
   }
 
@@ -26,18 +62,44 @@ class _AddCategory extends State<AddCategory> {
       body: ListView(
         children: [
           TextBox(controllerName, "Nombre"),
-          ElevatedButton(
-              onPressed: () {
-                String name = controllerName.text;
-
-                if (name.isNotEmpty) {
-                  Navigator.pop(context, new Category(name: name));
-                }
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: DropdownButton<IconData>(
+              isExpanded: true,
+              value: selectedIcon,
+              items: icons
+                  .map((icon) => DropdownMenuItem<IconData>(
+                        value: icon,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [Icon(icon)],
+                        ),
+                      ))
+                  .toList(),
+              onChanged: (value) {
+                setState(() {
+                  selectedIcon = value!;
+                });
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.onPrimary,
-              ),
-              child: Text("Guardar Categoría")),
+              hint: Text("Seleccione un ícono"),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              String name = controllerName.text;
+
+              if (name.isNotEmpty) {
+                Navigator.pop(
+                  context,
+                  Category(name: name, icon: selectedIcon),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.onPrimary,
+            ),
+            child: Text("Guardar Categoría"),
+          ),
         ],
       ),
     );

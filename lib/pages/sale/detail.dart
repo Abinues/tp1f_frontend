@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-
+import 'delivery_map_view.dart';
+import 'geocoding.dart';
 import '../cart/finish_cart.dart';
 
 import '../product/product.dart';
@@ -7,7 +8,7 @@ import '../product/product.dart';
 class SaleDetailView extends StatelessWidget {
   final Sale sale;
 
-  SaleDetailView(this.sale, {super.key}) {}
+  SaleDetailView(this.sale, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -29,10 +30,28 @@ class SaleDetailView extends StatelessWidget {
                 final totalPrice = product.salePrice * quantity;
 
                 return ListTile(
-                  title: Text(product.name),
-                  subtitle: Text("\$${totalPrice.toStringAsFixed(2)}"),
+                  title: Text(
+                    "$quantity ${product.name}",
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  subtitle: Text(
+                    "\$${totalPrice.toStringAsFixed(2)}",
+                  ),
                   leading: CircleAvatar(
-                    child: Text(quantity.toString()),
+                    backgroundImage: product.imageBytes != null
+                        ? MemoryImage(product.imageBytes!)
+                        : (product.imagePath != null
+                            ? AssetImage(product.imagePath!)
+                            : null),
+                    child:
+                        product.imageBytes == null && product.imagePath == null
+                            ? Text(
+                                product.name[0],
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              )
+                            : null,
                   ),
                 );
               },
@@ -50,6 +69,35 @@ class SaleDetailView extends StatelessWidget {
           ),
         ],
       ),
+      floatingActionButton: sale.operation != "pickup"
+          ? Padding(
+              padding: const EdgeInsets.only(bottom: 80),
+              child: FloatingActionButton(
+                onPressed: () async {
+                  try {
+                    Map<String, double> coordinates =
+                        await getCoordinatesFromAddress(sale.operation);
+
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => DeliveryMapView(
+                          latitude: coordinates['latitude']!,
+                          longitude: coordinates['longitude']!,
+                        ),
+                      ),
+                    );
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error: $e')),
+                    );
+                  }
+                },
+                tooltip: "Ver Ubicación",
+                child: const Icon(Icons.map),
+              ),
+            )
+          : null,
     );
   }
 }

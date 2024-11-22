@@ -58,12 +58,9 @@ class _TopCategorisWidgetState extends State<TopCategorisWidget> {
                           : Colors.pink,
                     ),
                     child: Center(
-                      child: Text(
-                        categories[index].name,
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyMedium!
-                            .copyWith(color: Colors.white),
+                      child: Icon(
+                        categories[index].icon,
+                        color: Colors.white,
                       ),
                     ),
                   ),
